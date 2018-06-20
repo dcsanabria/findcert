@@ -1,0 +1,131 @@
+﻿@{
+    ViewBag.Title = "Test";
+}
+
+<div class="panel panel-enodo panel-default selected">
+    <div class="panel-heading text-uppercase">Certificate Configuration</div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-10">
+                <form class="form-inline">
+                    <div class="form-group">
+                        <strong for="txtKeyword">Keyword</strong>
+                        <input type="text" class="form-control" placeholder="Keyword to find Cert" id="txtKeyword">
+                    </div>
+                    <div class="form-group">
+                        <strong for="store">Finding Type</strong>
+                        <select id="store" class="form-control">
+                            <option value="AddressBook">AddressBook</option>
+                            <option value="AuthRoot">AuthRoot</option>
+                            <option value="CertificateAuthority">CertificateAuthority</option>
+                            <option value="Disallowed">Disallowed</option>
+                            <option value="My">My</option>
+                            <option value="Root">Root</option>
+                            <option value="TrustedPeople">TrustedPeople</option>
+                            <option value="TrustedPublisher">TrustedPublisher</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <strong for="location">Location</strong>
+                        <select id="location" class="form-control">
+                            <option value="CurrentUser">CurrentUser</option>
+                            <option value="LocalMachine">LocalMachine</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <strong for="finding">Method to Find</strong>
+                        <select id="finding" class="form-control">
+                            <option value="FindByThumbprint">FindByThumbprint</option>
+                            <option value="FindBySubjectName">FindBySubjectName</option>
+                            <option value="FindBySubjectDistinguishedName">FindBySubjectDistinguishedName</option>
+                            <option value="FindByIssuerName">FindByIssuerName</option>
+                            <option value="FindByIssuerDistinguishedName">FindByIssuerDistinguishedName</option>
+                            <option value="FindBySerialNumber">AFindBySerialNumberBC</option>
+                            <option value="FindByTimeValid">FindByTimeValid</option>
+                            <option value="FindByTimeNotYetValid">FindByTimeNotYetValid</option>
+                            <option value="FindByTimeExpired">FindByTimeExpired</option>
+                            <option value="FindByTemplateName">FindByTemplateName</option>
+                            <option value="FindByApplicationPolicy">FindByApplicationPolicy</option>
+                            <option value="FindByCertificatePolicy">FindByCertificatePolicy</option>
+                            <option value="FindByExtension">FindByExtension</option>
+                            <option value="FindByKeyUsage">FindByKeyUsage</option>
+                            <option value="FindBySubjectKeyIdentifier">FindBySubjectKeyIdentifier</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="button" class="btn btn-primary" value="Find Certificate" id="btnGet">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear: both"></div>
+<div>
+    <div class="col-lg-6">
+        <div class="panel " id="certResult" style="visibility: hidden">
+            <div class="panel-heading">Certificate Result</div>
+            <div class="panel-body">
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-1"></div>
+    <div class="col-lg-6">
+        <div class="panel panel-success" id="qlikResult" style="visibility: hidden">
+            <div class="panel-heading">Qlik Call Result</div>
+            <div class="panel-body">
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnGet").click(function () {
+            $.ajax({
+                type: "POST",
+                url: "/Home/CertResult",
+                data: "{'keyword':'" +
+                $("#txtKeyword").val() +
+                "', 'finding':'" +
+                $("#finding").val() +
+                "', 'store':'" +
+                $("#store").val() +
+                "', 'location':'" +
+                $("#location").val() +
+                "'}",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    $("#certResult").css("visibility", "inherit");
+                    $("#certResult").removeClass("panel-success");
+                    $("#certResult").removeClass("panel-danger");
+                    $("#certResult .panel-body").html("");
+
+                    if (response.Found === "Yes")
+                        $("#certResult").addClass("panel-success");
+                    else
+                        $("#certResult").addClass("panel-danger");
+
+
+                    for (var propertyName in response) {
+                        $("#certResult .panel-body").append("<p><strong>" +
+                            propertyName +
+                            ": </strong><span>" +
+                            response[propertyName] +
+                            " </span></p>");
+                    }
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    console.log(response.responseText);
+                }
+            });
+        });
+
+    });
+</script>
